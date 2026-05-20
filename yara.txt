@@ -1,0 +1,110 @@
+rule CTI_Lumma_C2_SetAgent_Communication
+{
+    meta:
+        description = "Detects Lumma Stealer C2 communication via /api/set_agent"
+        author      = "Adebayo"
+        family      = "LummaC2"
+        mitre       = "T1071.001, T1041"
+        severity    = "Critical"
+    strings:
+        $domain   = "sinitjq.cyou"   nocase
+        $endpoint = "/api/set_agent"  nocase
+        $actlog   = "act=log"         nocase
+        $token    = "token="          nocase
+    condition:
+        ($domain and $endpoint and $token)
+        or ($domain and $endpoint and $actlog)
+}
+
+
+rule CTI_Lumma_Known_Agent_Credentials
+{
+    meta:
+        description = "Detects Lumma Stealer agent ID and session token from this campaign"
+        author      = "Adebayo"
+        family      = "LummaC2"
+        mitre       = "T1071.001"
+        severity    = "Critical"
+    strings:
+        $agent_id = "DF59CCBE0E57F241298E11CD1E79C8A1"    nocase
+        $token    = "005c3799f51121306a8d1550707e79cfe964" nocase
+    condition:
+        any of them
+}
+
+
+rule CTI_Lumma_Infrastructure_Cluster
+{
+    meta:
+        description = "Detects traffic to confirmed Lumma Stealer campaign domains"
+        author      = "Adebayo"
+        family      = "LummaC2"
+        mitre       = "T1105, T1071.001"
+        severity    = "High"
+    strings:
+        $d1 = "gorcerie.com"            nocase
+        $d2 = "media.megadatahost1.lat"  nocase
+        $d3 = "arch2.maxdatahost2.lat"   nocase
+        $d4 = "sinitjq.cyou"             nocase
+        $d5 = "memory-scanner.cc"        nocase
+    condition:
+        any of them
+}
+
+
+
+rule CTI_Lumma_Fingerprinting_Exfiltration
+{
+    meta:
+        description = "Detects Lumma Stealer fingerprint fields in outbound POST"
+        author      = "Adebayo"
+        family      = "LummaC2"
+        mitre       = "T1082, T1614.001, T1041"
+        severity    = "High"
+    strings:
+        $platform = "Win32"               nocase
+        $chrome   = "Chrome/143"          nocase
+        $hardware = "hardwareConcurrency" nocase
+        $webgl    = "WebGL"               nocase
+        $canvas   = "canvas"              nocase
+        $fonts    = "fonts"               nocase
+        $plugins  = "plugins"             nocase
+        $pdf      = "pdfViewerEnabled"    nocase
+    condition:
+        5 of them
+}
+
+
+rule CTI_Lumma_DGA_Fallback
+{
+    meta:
+        description = "Detects DGA-generated backup domain from this campaign"
+        author      = "Adebayo"
+        family      = "LummaC2"
+        mitre       = "T1568.002"
+        severity    = "Medium"
+    strings:
+        $dga = "WxnFBiGyGhmUai" nocase
+    condition:
+        $dga
+}
+
+
+rule CTI_Lumma_AboutBlank_Redirect
+{
+    meta:
+        description = "Detects Lumma Stealer post-exfiltration concealment redirect"
+        author      = "Adebayo"
+        family      = "LummaC2"
+        mitre       = "T1036, T1041"
+        severity    = "High"
+    strings:
+        $redirect = "about:blank"        nocase
+        $endpoint = "/api/set_agent"     nocase
+        $token    = "token="             nocase
+        $webrtc   = "RTCPeerConnection"  nocase
+    condition:
+        ($redirect and $endpoint)
+        or ($redirect and $token)
+        or ($webrtc and $endpoint)
+}
