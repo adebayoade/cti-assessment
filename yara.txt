@@ -1,3 +1,10 @@
+// Lumma Stealer Detection Rules
+// Author: Adebayo Aderibigbe
+// Date: 21 May 2026
+
+// Rule 1: Lumma Stealer C2 API Communication (Critical)
+// Detects HTTP communication with the Lumma Stealer C2 domain and API endpoint
+// Deploy to: SIEM proxy logs, packet captures, network traffic analysis tools
 rule CTI_Lumma_C2_SetAgent_Communication
 {
     meta:
@@ -16,7 +23,9 @@ rule CTI_Lumma_C2_SetAgent_Communication
         or ($domain and $endpoint and $actlog)
 }
 
-
+// Rule 2: Known Lumma Stealer Campaign Credentials (Critical)
+// Detects the specific agent ID and session token from this campaign
+// Deploy to: SIEM, EDR, network monitoring tools
 rule CTI_Lumma_Known_Agent_Credentials
 {
     meta:
@@ -32,7 +41,9 @@ rule CTI_Lumma_Known_Agent_Credentials
         any of them
 }
 
-
+// Rule 3: Lumma Stealer Infrastructure Cluster (High)
+// Detects traffic to any confirmed malicious domain from this campaign
+// Deploy to: DNS logs, proxy logs, firewall logs
 rule CTI_Lumma_Infrastructure_Cluster
 {
     meta:
@@ -51,8 +62,9 @@ rule CTI_Lumma_Infrastructure_Cluster
         any of them
 }
 
-
-
+// Rule 4: Lumma Stealer Device Fingerprinting Exfiltration (High)
+// Detects the co-occurrence of fingerprinting fields in outbound POST requests
+// Deploy to: HTTP proxy logs, web application firewalls, SIEM
 rule CTI_Lumma_Fingerprinting_Exfiltration
 {
     meta:
@@ -74,7 +86,9 @@ rule CTI_Lumma_Fingerprinting_Exfiltration
         5 of them
 }
 
-
+// Rule 5: Lumma Stealer DGA Fallback Domain (Medium)
+// Detects the specific DGA-generated domain observed in this campaign
+// Deploy to: DNS logs, SIEM correlation rules
 rule CTI_Lumma_DGA_Fallback
 {
     meta:
@@ -89,7 +103,9 @@ rule CTI_Lumma_DGA_Fallback
         $dga
 }
 
-
+// Rule 6: Lumma Stealer About:Blank Concealment Redirect (High)
+// Detects the post-exfiltration concealment technique confirmed in VirusTotal analysis
+// Deploy to: Endpoint detection, browser cache scanning, memory forensics
 rule CTI_Lumma_AboutBlank_Redirect
 {
     meta:
@@ -108,3 +124,4 @@ rule CTI_Lumma_AboutBlank_Redirect
         or ($redirect and $token)
         or ($webrtc and $endpoint)
 }
+

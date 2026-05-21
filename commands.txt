@@ -1,0 +1,120 @@
+# Wireshark Commands and Filters
+# CTI Investigation - Lumma Stealer Campaign
+# Author: Adebayo Aderibigbe
+# Date: 21 May 2026
+# Sheffield Hallam University
+
+## Display Filters Used
+
+# Show all DNS queries
+dns
+
+# Show all HTTP traffic
+http
+
+# Filter by specific IP address (victim machine)
+ip.addr == 10.12.30.101
+
+# Show only HTTP POST requests
+http.request.method == "POST"
+
+# Show all TLS encrypted traffic
+tls
+
+# Search for specific string in packet contents
+frame contains "set_agent"
+
+# Combine filters - HTTP traffic from victim machine
+ip.src == 10.12.30.101 && http
+
+# Show DNS queries excluding responses
+dns.flags.response == 0
+
+# Show only DNS queries from victim machine
+ip.src == 10.12.30.101 && dns && dns.flags.response == 0
+
+# Filter specific domain in DNS queries
+dns.qry.name contains "gorcerie.com"
+
+# Show HTTP traffic to C2 server
+ip.dst == 13.201.207.191 && http
+
+# Filter HTTP POST with specific parameter
+http.request.uri contains "act=log"
+
+# Show TLS traffic to payload delivery server
+ip.dst == 172.67.203.237 && tls
+
+# Follow TCP stream for specific conversation
+tcp.stream eq 0
+tcp.stream eq 42
+tcp.stream eq 156
+
+# Show all traffic to/from C2 server
+ip.addr == 13.201.207.191
+
+# Filter by HTTP status codes
+http.response.code == 200
+
+# Combined filter for C2 communication analysis
+ip.addr == 13.201.207.191 && (http || tcp)
+
+
+## Wireshark Command-Line (tshark) Examples
+
+# Export HTTP objects from PCAP
+tshark -r CTI_Assignment_Traffic_2025-2026.pcap --export-objects http,/output/directory
+
+# Extract DNS queries to CSV
+tshark -r CTI_Assignment_Traffic_2025-2026.pcap -Y "dns.flags.response == 0" -T fields -e frame.time -e ip.src -e dns.qry.name -E header=y -E separator=, > dns_queries.csv
+
+# Extract HTTP requests to CSV
+tshark -r CTI_Assignment_Traffic_2025-2026.pcap -Y "http.request" -T fields -e frame.time -e ip.src -e ip.dst -e http.request.method -e http.request.uri -E header=y -E separator=, > http_requests.csv
+
+# Count packets by protocol
+tshark -r CTI_Assignment_Traffic_2025-2026.pcap -q -z io,phs
+
+# Extract TLS handshakes
+tshark -r CTI_Assignment_Traffic_2025-2026.pcap -Y "tls.handshake" -T fields -e frame.time -e ip.src -e ip.dst -e tls.handshake.type
+
+
+## Wireshark GUI Operations
+
+# Export C2 payload for VirusTotal analysis
+1. Apply filter: ip.addr == 13.201.207.191 && http
+2. Locate HTTP 200 OK response from server
+3. Right-click packet > Follow > TCP Stream
+4. Change "Show and save data as" to "Raw"
+5. Click "Save as..." > save as set_agent_payload.html
+6. Upload to VirusTotal for malware family attribution
+
+# Export full packet capture to CSV
+File > Export Packet Dissections > As CSV
+Select all packets or apply filter first
+
+# Create IO Graph for traffic analysis
+Statistics > I/O Graph
+Add filters for different traffic types to visualize timeline
+
+# View Conversations
+Statistics > Conversations > TCP tab
+Sort by "Bytes" column to identify largest data transfers
+
+# Protocol Hierarchy
+Statistics > Protocol Hierarchy
+View breakdown of protocols in capture
+
+
+## MITRE ATT&CK Navigator Export
+
+# Export layer as JSON from Navigator web interface
+# https://mitre-attack.github.io/attack-navigator/
+# Create layer with techniques: T1189, T1204.001, T1071.001, T1090.003, T1573.002, T1105, T1568.002, T1102, T1082, T1614.001, T1041
+# File > Download > Download as JSON
+# File > Export > Export as Excel (.xlsx)
+
+## Notes
+
+# All commands executed on Ubuntu 24.04 LTS
+# Wireshark version: 4.2.x
+# NetworkMiner version: 2.x

@@ -25,4 +25,4 @@ The report includes rules for:
 
 ## Author
 
-Adebayo
+Adebayo Aderibigbe
